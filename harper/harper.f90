@@ -16,11 +16,11 @@ PROGRAM matriz1e
   ! COMPZ="V"
   JOBZ="V"
   UPLO="U"
-  golden_ratio=(sqrt(2.)-1)/2
+  golden_ratio=(sqrt(5.)-1)/2
 ! gfortran harper.f90 -O2 -o teste.exe -L/usr/local/lib -llapack -lblas
 tamanho_matriz = 1000
 n_amostras = 1
-v_zero = 1.0
+v_zero = 4.0
 
 ! Dimensão da matriz
 PRINT *, " Digite o valor do fator multiplicador da amostra"
