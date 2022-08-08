@@ -2,10 +2,10 @@ PROGRAM matriz1e
  
 !  IMPLICIT none 
   INTEGER :: contE,k,j,g
-  INTEGER :: seed, amostra, linha, coluna, tamanho_matriz, seed1, fator_amostra, n_amostras
+  INTEGER :: linha, coluna, tamanho_matriz,  n_amostras
   REAL :: golden_ratio
   DOUBLE PRECISION, PARAMETER :: PI=4.D0*DATAN(1.D0)
-  INTEGER, PARAMETER :: Nmax = 6000, MMAX=100000000, MMAX1=100000000
+  INTEGER, PARAMETER :: Nmax = 21000, MMAX=100000000, MMAX1=100000000
   !COLOCAR UMA VALIDAÇÃO PARA AVISAR QUANDO MMAX E MMAX1 FOR ATINGIDO !!
   DOUBLE PRECISION :: WORK(MMAX)
   DOUBLE PRECISION:: PAR,PAR_MED, max = 0.0d0, segundo_max=0.0d0, max_wave_med = 0.0d0
@@ -17,13 +17,12 @@ PROGRAM matriz1e
   JOBZ="V"
   UPLO="U"
   golden_ratio=(sqrt(5.)-1)/2
-! gfortran participacao_max_funcao_media.f90 -O2 -o teste.exe -L/usr/local/lib -llapack -lblas
-tamanho_matriz = 2000
+! gfortran ponto_critico.f90 -O2 -o teste.exe -L/usr/local/lib -llapack -lblas -fmax-stack-var-size=3276800
 n_amostras = 1
 
 ! Dimensão da matriz
-PRINT *, " Digite o valor do fator multiplicador da amostra"
-READ *, fator_amostra
+PRINT *, " tamanho_matriz = "
+READ *, tamanho_matriz
 
 C2="n_amostras="
 C3="v_zero="
@@ -33,15 +32,15 @@ C6=""
 C7="E_PAR_MAX_WAVE_FUC_MEDIO"
 
 C1="ARQUIVO_MEDIAS_N="
-!C1,tamanho_matriz,C2,n_amostras,C7,C5
-CALL SUBARCH_ARQUIVO_MEDIAS(100,C1,tamanho_matriz,C2,n_amostras,C7,C5)
+!C1,tamanho_matriz,C2,n_amostras,C4,N,C7,C5
+CALL SUBARCH_ARQUIVO_MEDIAS(100,C1,tamanho_matriz,C2,n_amostras,C4,tamanho_matriz,C7,C5)
 
     !#########################################################################!        
     !############# Registre a energia potencial em um arquivo histórico ######!
                   
       C2="v_zero="
       C3="L_desordem_hopping="
-      C4=""
+      C4="N="
       C5=".dat"
       C6=""
       C7="AMTRA="
@@ -66,7 +65,7 @@ CALL SUBARCH_ARQUIVO_MEDIAS(100,C1,tamanho_matriz,C2,n_amostras,C7,C5)
     !################# DISTRIBUIÇÃO DESORDENADA DE POTENCIAL #################!
 
     !Gerador de números aleatórios
-      DO g =10,40
+      DO g =20,20
               v_zero = g/10.0d0
                   Do  i =1, tamanho_matriz
                       !  Ep(i) = 0.0d0
@@ -217,7 +216,7 @@ CALL SUBARCH_ARQUIVO_MEDIAS(100,C1,tamanho_matriz,C2,n_amostras,C7,C5)
                       PAR_MED = PAR_MED + 1.0d0/PAR
                       max_wave_med = max_wave_med + max
                     enddo
-                    WRITE(100,*)PAR_MED/contE,max_wave_med/contE, v_zero
+                    WRITE(100,*)PAR_MED/contE,max_wave_med/contE, tamanho_matriz
                 contE = 0
                 PAR_MED = 0.0d0
                 max_wave_med = 0.0d0
@@ -239,36 +238,9 @@ END PROGRAM matriz1e
           
 !Subrotina
 
-
-!#########################################################################!
-	!(80,C1,tamanho_matriz,C2,v_zero,C7,seed,C5)
-      SUBROUTINE SUBARCH(NOUT,C1,i1,C2,r2,C7,i7,C5)
-      CHARACTER*300 FOUT,FDUMMY
-      CHARACTER*42 C1,C2,C3,C4,C5,C6,C7
-      integer i1,i2,i3,i4,i5,i6,i7
-      DOUBLE PRECISION r1,r2,r3,r4,r5,r6,r7,r8
-     
-      FDUMMY  = ' '
-      FOUT    = ' ' !C1,N,C2,WX,C7,SEED3,C5)
-      WRITE(FDUMMY,'(A,I6,A,F7.2,A,I6,A)')C1,i1,C2,r2,C7,i7,C5
-!     REMOVE THE BLANKS FROM NAME
-      IPOS = 0
-          DO 41 I=1,LEN(FDUMMY)
-              IF(FDUMMY(I:I).NE.' ')THEN
-                  IPOS = IPOS+1
-                  FOUT(IPOS:IPOS) = FDUMMY(I:I)
-              ENDIF
-  41       CONTINUE  
-      OPEN(NOUT,FILE=FOUT,STATUS='REPLACE')
-      RETURN
-      END
-
-
-!#########################################################################!
-
 !#########################################################################!
 	!(100,C1,tamanho_matriz,C2,n_amostras,C7,C5
-      SUBROUTINE SUBARCH_ARQUIVO_MEDIAS(NOUT,C1,i1,C2,i2,C7,C5)
+      SUBROUTINE SUBARCH_ARQUIVO_MEDIAS(NOUT,C1,i1,C2,i2,C4,i4,C7,C5)
       CHARACTER*300 FOUT,FDUMMY
       CHARACTER*42 C1,C2,C3,C4,C5,C6,C7
       integer i1,i2,i3,i4,i5,i6,i7
@@ -276,7 +248,7 @@ END PROGRAM matriz1e
      
       FDUMMY  = ' '
       FOUT    = ' ' !!C1,tamanho_matriz,C2,n_amostras,C7,C5
-      WRITE(FDUMMY,'(A,I6,A,I6,A,A)')C1,i1,C2,i2,C7,C5
+      WRITE(FDUMMY,'(A,I6,A,I6,A,I6,A,A)')C1,i1,C2,i2,C4,i4,C7,C5
 !     REMOVE THE BLANKS FROM NAME
       IPOS = 0
           DO 41 I=1,LEN(FDUMMY)
