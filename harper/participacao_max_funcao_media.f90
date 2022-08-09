@@ -18,7 +18,7 @@ PROGRAM matriz1e
   UPLO="U"
   golden_ratio=(sqrt(5.)-1)/2
 ! gfortran participacao_max_funcao_media.f90 -O2 -o teste.exe -L/usr/local/lib -llapack -lblas
-tamanho_matriz = 4000
+tamanho_matriz = 2000
 n_amostras = 1
 
 ! Dimensão da matriz
@@ -35,9 +35,6 @@ C7="E_PAR_MAX_WAVE_FUC_MEDIO"
 C1="ARQUIVO_MEDIAS_N="
 !C1,tamanho_matriz,C2,n_amostras,C7,C5
 CALL SUBARCH_ARQUIVO_MEDIAS(100,C1,tamanho_matriz,C2,n_amostras,C7,C5)
-
-Do  seed1 =1, n_amostras
-    seed = seed1*fator_amostra
 
     !#########################################################################!        
     !############# Registre a energia potencial em um arquivo histórico ######!
@@ -63,8 +60,7 @@ Do  seed1 =1, n_amostras
     !       END DO
     !#########################################################################!
     !#################### DISTRIBUIÇÃO ORDENADA DE POTENCIAL #################!
-      ! Condições iniciais 
-      amostra = -seed
+
 
     !#########################################################################!
     !################# DISTRIBUIÇÃO DESORDENADA DE POTENCIAL #################!
@@ -239,7 +235,6 @@ Do  seed1 =1, n_amostras
           ENDDO
           !#########################################################################!
           !################### Calculo da função de onda máxima ao quadrado ######################!
-    END DO
 END PROGRAM matriz1e
           
 !Subrotina
