@@ -57,9 +57,9 @@ PROGRAM histograma
     USE procedures
     INTEGER :: i, j, k, io, nlines, tamanho_matriz, qtd_pontos_pular
     CHARACTER (len=255)  :: nome_do_arquivo
-    REAL(KIND=8) :: x_line,y_line,v_zero
+    REAL(KIND=8) :: x_line,y_line, z_line,v_zero
     REAL(KIND=8), DIMENSION(:), ALLOCATABLE :: histo_shape, histo_calda
-    ! gfortran histograma.f90 -O2 -o histo.exe -fmax-stack-var-size=3276800
+    ! gfortran histograma_max_wave.f90 -O2 -o histo_max_wave.exe -fmax-stack-var-size=3276800
 
     ! SUBARCH
 !---------------------------CRIANDO ARQUIVOS DE SAIDA----------------------------------------------
@@ -67,7 +67,7 @@ PROGRAM histograma
     
     ! tamanho_matriz = 1000
     ! v_zero = 1.0
-    qtd_pontos_pular = 50
+    qtd_pontos_pular = 1
 
     PRINT *, "Digite o nome do arquivo"
     READ (*,*) nome_do_arquivo
@@ -94,7 +94,7 @@ PROGRAM histograma
     C6=""
     C7="_SHAPE"
     
-    C1="HISTOGRAMA_N="
+    C1="MAX_WAVE_HISTOGRAMA_N="
     !C1,tamanho_matriz,C3,v_zero,C7,C5
     CALL SUBARCH_HISTOGRAMA(100,C1,tamanho_matriz,C3,v_zero,C4,qtd_pontos_pular,C7,C5)
     C7="_CALDA"
@@ -120,9 +120,9 @@ PROGRAM histograma
     ALLOCATE(histo_calda(nlines))
 
     DO j =1,nlines
-        READ(1,*,iostat=io)x_line,y_line
-        histo_shape(j) = LOG(y_line)
-        histo_calda(j) = y_line
+        READ(1,*,iostat=io)x_line,y_line,z_line
+        histo_shape(j) = LOG(z_line)
+        histo_calda(j) = z_line
     END DO
 
     ! print *," "
@@ -143,7 +143,7 @@ PROGRAM histograma
     ! END DO
 
     !ler uma quantidade menor de pontos e escrever arquivo
-    DO i = 1,nlines,qtd_pontos_pular
+    DO i = 1,nlines
         WRITE(100,*) i,histo_shape(i)
         WRITE(200,*) i,histo_calda(i)
     END DO
