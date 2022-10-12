@@ -3,7 +3,7 @@ PROGRAM matriz1e
 !  IMPLICIT none 
   INTEGER :: contE,k,j
   INTEGER :: seed, amostra, linha, coluna, tamanho_matriz, seed1, fator_amostra, n_amostras
-  REAL :: golden_ratio
+  REAL :: golden_ratio, fase = 0.0
   DOUBLE PRECISION, PARAMETER :: PI=4.D0*DATAN(1.D0)
   INTEGER, PARAMETER :: Nmax = 21000, MMAX=100000000, MMAX1=100000000
   !COLOCAR UMA VALIDAÇÃO PARA AVISAR QUANDO MMAX E MMAX1 FOR ATINGIDO !!
@@ -17,38 +17,31 @@ PROGRAM matriz1e
   JOBZ="V"
   UPLO="U"
   golden_ratio=(sqrt(5.)-1)/2
-! gfortran todas_distribuicoes_harper.f90 -O2 -o all_psi.exe -L/usr/local/lib -llapack -lblas -fmax-stack-var-size=3276800
+! gfortran max_distrib_harper_com_fase.f90 -O2 -o max_psi.exe -L/usr/local/lib -llapack -lblas -fmax-stack-var-size=3276800
 ! tamanho_matriz = 4000
-n_amostras = 1
-fator_amostra=1
+n_amostras = 10
+fator_amostra = 7
 
-! PRINT *, " Digite o valor do fator multiplicador da amostra"
-! READ *, fator_amostra
 PRINT *, " tamanho_matriz ="
 READ *, tamanho_matriz
 
-PRINT *, " v_zero = "
+PRINT *, " v_zero ="
 READ *, v_zero
+
 
 C2="n_amostras="
 C3="v_zero="
 C4=""
 C5=".dat"
 C6=""
-C7="E_PSI"
+C7="E_MAX_PSI"
 
-C1="TODAS_DISTRIB_N="
-!C1,tamanho_matriz,C7,C5)
-CALL SUBARCH_ARQUIVO_MEDIAS(80,C1,tamanho_matriz,C2,n_amostras,C3,v_zero,C7,C5)
+C1="MAX_DISTRIB_PSI_N="
+!C1,tamanho_matriz,C2,n_amostras,C3,v_zero,C7,C5
+CALL SUBARCH_ARQUIVO_MEDIAS(100,C1,tamanho_matriz,C2,n_amostras,C3,v_zero,C7,C5)
 
-! OPEN(unit=100, file='arquivo_para_medias.dat', status='REPLACE', action='WRITE', ACCESS ='SEQUENTIAL' )
-! read(100,*)tamanho_matriz,largura_desordem,largura_desordem_hopping,seed
 Do  seed1 =1, n_amostras
     seed = seed1*fator_amostra
-
-    !#########################################################################!        
-    !############# Registre a energia potencial em um arquivo histórico ######!
-
 
     !#########################################################################!
     !#################### DISTRIBUIÇÃO ORDENADA DE POTENCIAL #################!	
@@ -64,15 +57,15 @@ Do  seed1 =1, n_amostras
     !################# DISTRIBUIÇÃO DESORDENADA DE POTENCIAL #################!
 
     !Gerador de números aleatórios
-
-      Do  i =1, tamanho_matriz
-        !  Ep(i) = 0.0d0
-        Ep(i) =v_zero*cos(2*PI*golden_ratio*i)
-        T(i) =1.
-!         PRINT *, "Desordem da Energia Potencial"
-!         PRINT *, Ep(i)
-!         PRINT *,
-    END DO
+        fase = ran1(amostra)
+        Do  i =1, tamanho_matriz
+            !  Ep(i) = 0.0d0
+            Ep(i) =v_zero*cos(2*PI*golden_ratio*i+fase)
+            T(i) =1.
+    !         PRINT *, "Desordem da Energia Potencial"
+    !         PRINT *, Ep(i)
+    !         PRINT *,
+        END DO
       
     !#########################################################################!
     !################# DISTRIBUIÇÃO DESORDENADA DE POTENCIAL #################!
@@ -172,13 +165,13 @@ Do  seed1 =1, n_amostras
     !################### Calculo da função de onda ao quadrado ######################!
   
 
-          psi = 0.0d0
-          do j=1,contE
-                do k=1,tamanho_matriz
-                        psi=H(k,j)**2.0d0
-                        WRITE(80,*)Ep(j),psi
-                enddo
-          enddo
+          ! psi = 0.0d0
+          ! do j=1,contE
+          !       do k=1,tamanho_matriz
+          !               psi=H(k,j)**2.0d0
+          !               WRITE(80,*)Ep(j),psi
+          !       enddo
+          ! enddo
     !#########################################################################!
     !################### Calculo da função de onda ao quadrado ######################!
 
@@ -234,8 +227,8 @@ END PROGRAM matriz1e
 
 
 !#########################################################################!
-	!(80,C1,tamanho_matriz,C2,largura_desordem,C3,largura_desordem_hopping,C7,seed,C5)
-      SUBROUTINE SUBARCH(NOUT,C1,i1,C2,r2,C3,r3,C7,i7,C5)
+	!(80,C1,tamanho_matriz,C2,v_zero,C7,seed,C5)
+      SUBROUTINE SUBARCH(NOUT,C1,i1,C2,r2,C7,i7,C5)
       CHARACTER*300 FOUT,FDUMMY
       CHARACTER*42 C1,C2,C3,C4,C5,C6,C7
       integer i1,i2,i3,i4,i5,i6,i7
@@ -243,7 +236,7 @@ END PROGRAM matriz1e
      
       FDUMMY  = ' '
       FOUT    = ' ' !C1,N,C2,WX,C7,SEED3,C5)
-      WRITE(FDUMMY,'(A,I6,A,F7.2,A,F7.2,A,I6,A)')C1,i1,C2,r2,C3,r3,C7,i7,C5
+      WRITE(FDUMMY,'(A,I6,A,F7.2,A,I6,A)')C1,i1,C2,r2,C7,i7,C5
 !     REMOVE THE BLANKS FROM NAME
       IPOS = 0
           DO 41 I=1,LEN(FDUMMY)
@@ -262,28 +255,28 @@ END PROGRAM matriz1e
 !#########################################################################!
 	!(100,C1,tamanho_matriz,C2,n_amostras,C3,v_zero,C7,C5)
       SUBROUTINE SUBARCH_ARQUIVO_MEDIAS(NOUT,C1,i1,C2,i2,C3,r3,C7,C5)
-        CHARACTER*300 FOUT,FDUMMY
-        CHARACTER*42 C1,C2,C3,C4,C5,C6,C7
-        integer i1,i2,i3,i4,i5,i6,i7
-        REAL r1,r2,r3,r4,r5,r6,r7,r8
-       
-        FDUMMY  = ' '
-        FOUT    = ' ' !!C1,tamanho_matriz,C2,n_amostras,C3,v_zero,C7,C5
-        WRITE(FDUMMY,'(A,I6,A,I6,A,F7.2,A,A)')C1,i1,C2,i2,C3,r3,C7,C5
-  !     REMOVE THE BLANKS FROM NAME
-        IPOS = 0
-            DO 41 I=1,LEN(FDUMMY)
-                IF(FDUMMY(I:I).NE.' ')THEN
-                    IPOS = IPOS+1
-                    FOUT(IPOS:IPOS) = FDUMMY(I:I)
-                ENDIF
-    41       CONTINUE  
-        OPEN(NOUT,FILE=FOUT,STATUS='REPLACE', ACTION='WRITE', ACCESS ='SEQUENTIAL' )
-        RETURN
-        END
-  
-  
-  !#########################################################################!
+      CHARACTER*300 FOUT,FDUMMY
+      CHARACTER*42 C1,C2,C3,C4,C5,C6,C7
+      integer i1,i2,i3,i4,i5,i6,i7
+      REAL r1,r2,r3,r4,r5,r6,r7,r8
+     
+      FDUMMY  = ' '
+      FOUT    = ' ' !!C1,tamanho_matriz,C2,n_amostras,C3,v_zero,C7,C5
+      WRITE(FDUMMY,'(A,I6,A,I6,A,F7.2,A,A)')C1,i1,C2,i2,C3,r3,C7,C5
+!     REMOVE THE BLANKS FROM NAME
+      IPOS = 0
+          DO 41 I=1,LEN(FDUMMY)
+              IF(FDUMMY(I:I).NE.' ')THEN
+                  IPOS = IPOS+1
+                  FOUT(IPOS:IPOS) = FDUMMY(I:I)
+              ENDIF
+  41       CONTINUE  
+      OPEN(NOUT,FILE=FOUT,STATUS='REPLACE', ACTION='WRITE', ACCESS ='SEQUENTIAL' )
+      RETURN
+      END
+
+
+!#########################################################################!
           
          
          FUNCTION ran1(idum)

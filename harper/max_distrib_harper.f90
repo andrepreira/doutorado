@@ -5,7 +5,7 @@ PROGRAM matriz1e
   INTEGER :: seed, amostra, linha, coluna, tamanho_matriz, seed1, fator_amostra, n_amostras
   REAL :: golden_ratio
   DOUBLE PRECISION, PARAMETER :: PI=4.D0*DATAN(1.D0)
-  INTEGER, PARAMETER :: Nmax = 6000, MMAX=100000000, MMAX1=100000000
+  INTEGER, PARAMETER :: Nmax = 21000, MMAX=100000000, MMAX1=100000000
   !COLOCAR UMA VALIDAÇÃO PARA AVISAR QUANDO MMAX E MMAX1 FOR ATINGIDO !!
   DOUBLE PRECISION :: WORK(MMAX)
   DOUBLE PRECISION:: PAR, max = 0.0d0, segundo_max=0.0d0, psi = 0.0d0
@@ -17,15 +17,17 @@ PROGRAM matriz1e
   JOBZ="V"
   UPLO="U"
   golden_ratio=(sqrt(5.)-1)/2
-! gfortran max_distrib_harper.f90 -O2 -o teste.exe -L/usr/local/lib -llapack -lblas
-tamanho_matriz = 4000
+! gfortran max_distrib_harper.f90 -O2 -o max_psi.exe -L/usr/local/lib -llapack -lblas -fmax-stack-var-size=3276800
+! tamanho_matriz = 4000
 n_amostras = 1
+fator_amostra = 1
 
-! Dimensão da matriz
-PRINT *, " Digite o valor do fator multiplicador da amostra"
-READ *, fator_amostra
-PRINT *, " Digite o valor de v_zero"
+PRINT *, " tamanho_matriz ="
+READ *, tamanho_matriz
+
+PRINT *, " v_zero ="
 READ *, v_zero
+
 
 C2="n_amostras="
 C3="v_zero="
